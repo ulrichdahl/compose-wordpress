@@ -4,7 +4,9 @@ services:
     restart: unless-stopped
     volumes:
       - ${HOME_DIR}/web:/var/www/html
-      - ${HOME_DIR}/compose-wordpress/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    configs:
+      - source: nginx_config
+        target: /etc/nginx/conf.d/default.conf
     networks:
       - local
       - proxy
@@ -16,7 +18,7 @@ services:
     volumes:
       - ${HOME_DIR}/db:/var/lib/mysql
     restart: unless-stopped
-    command: --innodb-buffer-pool-size=512M --innodb-log-file-size=128M --query-cache-size=0 --query-cache-type=0
+    command: --innodb-buffer-pool-size=512M --innodb-log-file-size=128M
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: wordpress
@@ -49,8 +51,11 @@ services:
     restart: unless-stopped
     volumes:
       - ${HOME_DIR}/web:/var/www/html
-      - ${HOME_DIR}/compose-wordpress/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
-      - ${HOME_DIR}/compose-wordpress/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini
+    configs:
+      - source: php_uploads
+        target: /usr/local/etc/php/conf.d/uploads.ini
+      - source: php_opcache
+        target: /usr/local/etc/php/conf.d/opcache.ini
     environment:
       WORDPRESS_DB_HOST: db:3306
       WORDPRESS_DB_USER: ${MYSQL_APP_USER}
@@ -67,3 +72,62 @@ networks:
     driver: bridge
   proxy:
     external: yes
+
+configs:
+  nginx_config:
+    inline: |
+      server {
+          listen 80;
+          server_name localhost;
+          root /var/www/html;
+          index index.php;
+          
+          access_log /dev/fd/1;
+          error_log /dev/fd/2;
+          
+          gzip on;
+          gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+          client_max_body_size 256M;
+
+          rewrite /wp-admin$ $scheme://$host$uri/ permanent;
+
+          location / {
+              try_files $uri $uri/ /index.php?$args;
+          }
+
+          location ~ \.php$ {
+              try_files $uri =404;
+              fastcgi_split_path_info ^(.+\.php)(/.+)$;
+              fastcgi_pass wordpress:9000;
+              fastcgi_index index.php;
+              include fastcgi_params;
+              fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+              fastcgi_param PATH_INFO $fastcgi_path_info;
+              fastcgi_buffers 16 16k;
+              fastcgi_buffer_size 32k;
+          }
+
+          location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|otf)$ {
+              expires max;
+              log_not_found off;
+              access_log off;
+          }
+      }
+
+  php_uploads:
+    inline: |
+      memory_limit = 256M
+      upload_max_filesize = 512M
+      post_max_filesize = 512M
+      max_execution_time = 300
+
+  php_opcache:
+    inline: |
+      opcache.enable=1
+      opcache.memory_consumption=256
+      opcache.interned_strings_buffer=16
+      opcache.max_accelerated_files=20000
+      opcache.revalidate_freq=2
+      opcache.validate_timestamps=1
+      opcache.fast_shutdown=1
