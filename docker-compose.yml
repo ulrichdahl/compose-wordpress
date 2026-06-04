@@ -89,7 +89,14 @@ configs:
           gzip on;
           gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
 
+          proxy_redirect off;
+          absolute_redirect on;
           client_max_body_size 684M;
+          client_header_buffer_size 64k;
+          large_client_header_buffers 4 64k;
+          proxy_buffer_size 128k;
+          proxy_buffers 4 256k;
+          proxy_busy_buffers_size 256k;
 
           rewrite /wp-admin$$ $$scheme://$$host$$uri/ permanent;
 
