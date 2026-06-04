@@ -75,7 +75,7 @@ networks:
 
 configs:
   nginx_config:
-    inline: |
+    content: |
       server {
           listen 80;
           server_name localhost;
@@ -116,14 +116,14 @@ configs:
       }
 
   php_uploads:
-    inline: |
+    content: |
       memory_limit = 256M
       upload_max_filesize = 512M
       post_max_filesize = 512M
       max_execution_time = 300
 
   php_opcache:
-    inline: |
+    content: |
       opcache.enable=1
       opcache.memory_consumption=256
       opcache.interned_strings_buffer=16
