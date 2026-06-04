@@ -70,7 +70,7 @@ services:
 
 networks:
   local:
-    driver: bridge
+    driver: local
   proxy:
     external: true
 
