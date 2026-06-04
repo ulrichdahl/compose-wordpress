@@ -36,7 +36,16 @@ services:
   wordpress:
     build:
       context: .
-      dockerfile: ${HOME_DIR}/compose-wordpress/Dockerfile
+      dockerfile_inline: |
+        FROM wordpress:php8.5-fpm
+        RUN apt-get update && apt-get install -y --no-install-recommends \
+            libzip-dev zip unzip libpng-dev libjpeg-dev libwebp-dev libfreetype6-dev libxml2-dev libicu-dev \
+            && rm -rf /var/lib/apt/lists/*
+        RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+            && docker-php-ext-configure intl
+        RUN docker-php-ext-install gd zip intl
+        RUN echo "[www]\npm = dynamic\npm.max_children = 50\npm.start_servers = 10\npm.min_spare_servers = 5\npm.max_spare_servers = 20\npm.max_requests = 500" > /usr/local/etc/php-fpm.d/zz-tuning.conf
+        RUN chown -R www-data:www-data /var/www/html
     restart: unless-stopped
     volumes:
       - ${HOME_DIR}/web:/var/www/html
