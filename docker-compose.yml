@@ -4,6 +4,7 @@ services:
     restart: unless-stopped
     volumes:
       - ${HOME_DIR}/web:/var/www/html
+      - ${HOME_DIR}/logs:/var/log/nginx
     configs:
       - source: nginx_config
         target: /etc/nginx/conf.d/default.conf
@@ -82,13 +83,13 @@ configs:
           root /var/www/html;
           index index.php;
           
-          access_log /dev/fd/1;
-          error_log /dev/fd/2;
+          access_log /var/log/nginx/access.log;
+          error_log /var/log/nginx/error.log;
           
           gzip on;
           gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
 
-          client_max_body_size 256M;
+          client_max_body_size 684M;
 
           rewrite /wp-admin$ $scheme://$host$uri/ permanent;
 
@@ -97,15 +98,15 @@ configs:
           }
 
           location ~ \.php$ {
-              try_files $uri $uri/ =404;
+              try_files $uri = 404;
+              fastcgi_buffers 16 16k;
+              fastcgi_buffer_size 32k;
               fastcgi_split_path_info ^(.+\.php)(/.+)$;
               fastcgi_pass wordpress:9000;
               fastcgi_index index.php;
               include fastcgi_params;
               fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
               fastcgi_param PATH_INFO $fastcgi_path_info;
-              fastcgi_buffers 16 16k;
-              fastcgi_buffer_size 32k;
           }
 
           location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|otf)$ {
