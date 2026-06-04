@@ -98,8 +98,6 @@ configs:
           proxy_buffers 4 256k;
           proxy_busy_buffers_size 256k;
 
-          rewrite /wp-admin$$ $$scheme://$$host$$uri/ permanent;
-
           location / {
               try_files $$uri $$uri/ /index.php$$is_args$$args;
           }
