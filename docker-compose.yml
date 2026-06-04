@@ -99,7 +99,7 @@ configs:
           proxy_busy_buffers_size 256k;
 
           location / {
-              try_files $$uri $$uri/ /index.php$$is_args$$args;
+              try_files $$uri $$uri/ /index.php?$$query_string;
           }
 
           location ~ \.php$$ {
