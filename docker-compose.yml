@@ -36,7 +36,7 @@ services:
   wordpress:
     build:
       context: .
-      dockerfile: inline.Dockerfile
+      dockerfile: Dockerfile
     restart: unless-stopped
     volumes:
       - ${HOME_DIR}/web:/var/www/html
