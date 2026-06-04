@@ -99,15 +99,14 @@ configs:
 
           location ~ \.php$ {
               try_files $uri = 404;
+              include fastcgi_params;
               fastcgi_buffers 16 16k;
               fastcgi_buffer_size 32k;
               fastcgi_pass wordpress:9000;
               fastcgi_index index.php;
               fastcgi_split_path_info       ^(.+\.php)(/.+)$;
-              set $path_info $fastcgi_path_info;
-              include fastcgi_params;
               fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-              fastcgi_param PATH_INFO       $path_info;
+              fastcgi_param PATH_INFO       $fastcgi_path_info;
           }
 
           location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|otf)$ {
