@@ -89,8 +89,8 @@ configs:
           gzip on;
           gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
 
-          proxy_redirect off;
-          absolute_redirect on;
+          #proxy_redirect off;
+          #absolute_redirect on;
           client_max_body_size 684M;
           client_header_buffer_size 64k;
           large_client_header_buffers 4 64k;
@@ -99,7 +99,7 @@ configs:
           proxy_busy_buffers_size 256k;
 
           location / {
-              try_files $$uri /index.php$$is_args$$args;
+              try_files $$uri $$uri/ /index.php$$is_args$$args;
           }
 
           location ~ \.php$$ {
