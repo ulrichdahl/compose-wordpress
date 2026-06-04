@@ -1,7 +1,7 @@
 FROM wordpress:php8.5-fpm
 
 # Installer system-afhængigheder (Nu med libicu-dev til 'intl')
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libzip-dev zip unzip \
     libpng-dev \
     libjpeg-dev \
@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
 # Konfigurer og installer alle udvidelser (inkl. intl, zip, gd, xml, opcache)
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-configure intl \
-    && docker-php-ext-install -j$(nproc) \
+    && docker-php-ext-install \
     gd \
     zip \
     xml \
