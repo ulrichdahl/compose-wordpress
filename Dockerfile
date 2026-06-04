@@ -1,6 +1,5 @@
 FROM wordpress:php8.5-fpm
 
-# Installer system-afhængigheder (Nu med libicu-dev til 'intl')
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libzip-dev zip unzip \
     libpng-dev \
@@ -11,15 +10,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libicu-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Konfigurer og installer alle udvidelser (inkl. intl, zip, gd, xml, opcache)
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
-    && docker-php-ext-configure intl \
-    && docker-php-ext-install \
+    && docker-php-ext-configure intl
+
+RUN docker-php-ext-install -j$(nproc) \
     gd \
     zip \
-    xml \
-    intl \
-    opcache
+    intl
 
 # HIGH TRAFFIC TUNING: PHP-FPM proces-optimering
 RUN echo "[www]\n\
