@@ -39,7 +39,7 @@ services:
     build:
       context: .
       dockerfile_inline: |
-        FROM wordpress:php8.4-fpm
+        FROM wordpress:php8.5-fpm
         RUN apt-get update && apt-get install -y --no-install-recommends \
             libzip-dev zip unzip libpng-dev libjpeg-dev libwebp-dev libfreetype6-dev libxml2-dev libicu-dev \
             && rm -rf /var/lib/apt/lists/*
